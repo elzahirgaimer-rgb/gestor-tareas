@@ -20,16 +20,11 @@
             background-color: #f3f4f6;
         }
         
-        /* Animaciones para el Modal */
-        .modal {
-            transition: opacity 0.25s ease;
-        }
-        body.modal-active {
-            overflow-x: hidden;
-            overflow-y: visible !important;
-        }
+        /* Animaciones */
+        .modal { transition: opacity 0.25s ease; }
+        body.modal-active { overflow: hidden; }
         
-        /* Estilo para el input de archivo */
+        /* Input Archivo */
         .file-drop-area {
             position: relative;
             display: flex;
@@ -47,138 +42,177 @@
         }
         
         /* Toast Notification */
-        #toast-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 50;
-        }
-        .toast {
-            transform: translateX(100%);
-            transition: transform 0.3s ease-in-out;
-        }
-        .toast.show {
-            transform: translateX(0);
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 60; }
+        .toast { transform: translateX(100%); transition: transform 0.3s ease-in-out; }
+        .toast.show { transform: translateX(0); }
+
+        /* Login Styles */
+        .login-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
     </style>
 </head>
 <body class="text-gray-800 h-screen flex flex-col overflow-hidden">
 
-    <!-- Header -->
-    <header class="bg-white shadow-sm z-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-indigo-600 text-white p-2 rounded-lg">
-                    <i class="fas fa-tasks fa-lg"></i>
+    <!-- ================= VISTA LOGIN ================= -->
+    <div id="loginView" class="fixed inset-0 z-50 flex items-center justify-center login-bg p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div class="p-8">
+                <div class="text-center mb-8">
+                    <div class="bg-indigo-100 text-indigo-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-user-shield text-2xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800">Bienvenido a GestorPro</h2>
+                    <p class="text-gray-500 text-sm mt-2">Inicia sesión para continuar</p>
                 </div>
-                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">GestorPro</h1>
-            </div>
-            <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg shadow transition duration-150 flex items-center gap-2">
-                <i class="fas fa-plus"></i> Nueva Tarea
-            </button>
-        </div>
-    </header>
 
-    <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-        <div class="max-w-7xl mx-auto">
-            
-            <!-- Filter Section -->
-            <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-col sm:flex-row gap-4 items-end sm:items-center justify-between">
-                <div class="w-full sm:w-auto flex-1">
-                    <h2 class="text-lg font-semibold text-gray-700 mb-1">Mis Tareas</h2>
-                    <p class="text-sm text-gray-500" id="task-count">Cargando tareas...</p>
+                <form onsubmit="handleLogin(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                            <input type="text" id="loginUser" required class="pl-10 w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="Ingresa tu usuario">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                            <input type="password" id="loginPass" required class="pl-10 w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <div id="loginError" class="hidden bg-red-50 text-red-600 text-sm p-3 rounded-lg flex items-center gap-2">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>Credenciales incorrectas.</span>
+                    </div>
+
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow transition duration-200 transform hover:-translate-y-0.5">
+                        Iniciar Sesión
+                    </button>
+                </form>
+                
+                <div class="mt-6 pt-6 border-t border-gray-100 text-center text-xs text-gray-400">
+                    <p>Acceso restringido. Solo personal autorizado.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= APLICACIÓN PRINCIPAL (Oculta por defecto) ================= -->
+    <div id="appView" class="hidden flex flex-col h-full">
+        
+        <!-- Header -->
+        <header class="bg-white shadow-sm z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-indigo-600 text-white p-2 rounded-lg">
+                        <i class="fas fa-tasks fa-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900 tracking-tight leading-none">GestorPro</h1>
+                        <span id="roleBadge" class="text-xs font-semibold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">Rol: Cargando...</span>
+                    </div>
                 </div>
                 
-                <div class="flex gap-2 w-full sm:w-auto items-end">
-                    <div class="flex-1 sm:flex-none">
-                        <label class="block text-xs font-medium text-gray-500 mb-1">Filtrar por Fecha</label>
-                        <input type="date" id="filterDate" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5">
-                    </div>
-                    <button onclick="applyFilter()" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2.5 px-4 rounded-lg border border-gray-200 transition flex items-center gap-2 h-[42px]">
-                        <i class="fas fa-filter"></i> Filtrar
+                <div class="flex items-center gap-3">
+                    <!-- Botón Nueva Tarea (Solo Admin) -->
+                    <button id="btnNewTask" onclick="openModal()" class="hidden bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg shadow transition duration-150 flex items-center gap-2">
+                        <i class="fas fa-plus"></i> <span class="hidden sm:inline">Nueva Tarea</span>
                     </button>
-                    <!-- Botón Modificado para Eliminar Filtros -->
-                    <button onclick="clearFilter()" class="bg-red-50 hover:bg-red-100 text-red-600 font-medium py-2.5 px-4 rounded-lg border border-red-100 transition flex items-center gap-2 h-[42px]" title="Eliminar filtros">
-                        <i class="fas fa-times"></i> Limpiar
+                    
+                    <!-- Logout -->
+                    <button onclick="logout()" class="text-gray-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Cerrar Sesión">
+                        <i class="fas fa-sign-out-alt fa-lg"></i>
                     </button>
                 </div>
             </div>
+        </header>
 
-            <!-- Tasks Grid -->
-            <div id="tasksGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Las tareas se renderizarán aquí mediante JS -->
-            </div>
-            
-            <!-- Empty State (Hidden by default) -->
-            <div id="emptyState" class="hidden flex flex-col items-center justify-center py-12 text-center">
-                <div class="bg-gray-100 p-6 rounded-full mb-4">
-                    <i class="fas fa-folder-open text-4xl text-gray-400"></i>
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            <div class="max-w-7xl mx-auto">
+                
+                <!-- Filter Section -->
+                <div class="bg-white rounded-xl shadow-sm p-4 mb-6 flex flex-col sm:flex-row gap-4 items-end sm:items-center justify-between">
+                    <div class="w-full sm:w-auto flex-1">
+                        <h2 class="text-lg font-semibold text-gray-700 mb-1">Mis Tareas</h2>
+                        <p class="text-sm text-gray-500" id="task-count">Cargando tareas...</p>
+                    </div>
+                    
+                    <div class="flex gap-2 w-full sm:w-auto items-end">
+                        <div class="flex-1 sm:flex-none">
+                            <label class="block text-xs font-medium text-gray-500 mb-1">Filtrar por Fecha</label>
+                            <input type="date" id="filterDate" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2.5">
+                        </div>
+                        <button onclick="applyFilter()" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2.5 px-4 rounded-lg border border-gray-200 transition flex items-center gap-2 h-[42px]">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                        <button onclick="clearFilter()" class="bg-red-50 hover:bg-red-100 text-red-600 font-medium py-2.5 px-4 rounded-lg border border-red-100 transition flex items-center gap-2 h-[42px]" title="Eliminar filtros">
+                            <i class="fas fa-times"></i> Limpiar
+                        </button>
+                    </div>
                 </div>
-                <h3 class="text-xl font-medium text-gray-900">No hay tareas encontradas</h3>
-                <p class="text-gray-500 mt-2 max-w-sm">Comienza creando una nueva tarea o ajusta tus filtros de búsqueda.</p>
-                <button onclick="openModal()" class="mt-6 text-indigo-600 hover:text-indigo-800 font-medium">Crear primera tarea &rarr;</button>
+
+                <!-- Tasks Grid -->
+                <div id="tasksGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                
+                <!-- Empty State -->
+                <div id="emptyState" class="hidden flex flex-col items-center justify-center py-12 text-center">
+                    <div class="bg-gray-100 p-6 rounded-full mb-4">
+                        <i class="fas fa-folder-open text-4xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-xl font-medium text-gray-900">No hay tareas encontradas</h3>
+                    <p class="text-gray-500 mt-2 max-w-sm">Ajusta tus filtros o contacta al administrador.</p>
+                </div>
             </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <!-- Modal Form (Create/Edit) -->
     <div id="taskModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
         <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
-        
         <div class="modal-container bg-white w-11/12 md:max-w-lg mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto max-h-[90vh]">
-            
             <div class="modal-content py-4 text-left px-6">
-                <!-- Title -->
                 <div class="flex justify-between items-center pb-3 border-b">
                     <p class="text-xl font-bold text-gray-800" id="modalTitle">Nueva Tarea</p>
                     <div class="modal-close cursor-pointer z-50 p-2 hover:bg-gray-100 rounded-full" onclick="closeModal()">
                         <i class="fas fa-times text-gray-500"></i>
                     </div>
                 </div>
-
-                <!-- Form -->
                 <form id="taskForm" onsubmit="handleFormSubmit(event)" class="mt-4 space-y-4">
                     <input type="hidden" id="taskId">
-                    
-                    <!-- Title Input -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Título de la Tarea</label>
-                        <input type="text" id="inputTitle" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="Ej: Reporte Trimestral">
+                        <input type="text" id="inputTitle" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
                     </div>
-
-                    <!-- Date Input -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Elaboración</label>
                         <input type="date" id="inputDate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
                     </div>
-
-                    <!-- Description Input -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                        <textarea id="inputDescription" rows="3" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" placeholder="Detalles importantes de la tarea..."></textarea>
+                        <textarea id="inputDescription" rows="3" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"></textarea>
                     </div>
-
-                    <!-- File Input -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Archivo Adjunto</label>
-                        <p class="text-xs text-gray-500 mb-2">Formatos: .html, .pptx, .pdf, .docx (Max 2MB recomendado)</p>
-                        
+                        <p class="text-xs text-gray-500 mb-2">Formatos: .html, .pptx, .pdf, .docx (Max 2MB)</p>
                         <div class="file-drop-area" id="dropZone">
                             <span class="text-gray-500 text-sm flex-1 truncate" id="fileNameDisplay">Click para seleccionar archivo</span>
                             <input class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" type="file" id="inputFile" accept=".html,.pptx,.pdf,.docx" onchange="updateFileName()">
-                            <div class="bg-indigo-50 text-indigo-600 p-2 rounded-lg ml-2">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                            </div>
+                            <div class="bg-indigo-50 text-indigo-600 p-2 rounded-lg ml-2"><i class="fas fa-cloud-upload-alt"></i></div>
                         </div>
                         <p id="currentFileStatus" class="text-xs text-green-600 mt-1 hidden"><i class="fas fa-check-circle"></i> Archivo actual mantenido</p>
                     </div>
-
-                    <!-- Footer -->
                     <div class="flex justify-end pt-4 gap-3">
                         <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium">Cancelar</button>
                         <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-md transition font-medium flex items-center gap-2">
-                            <i class="fas fa-save"></i> Guardar Tarea
+                            <i class="fas fa-save"></i> Guardar
                         </button>
                     </div>
                 </form>
@@ -186,35 +220,108 @@
         </div>
     </div>
 
-    <!-- Toast Container -->
     <div id="toast-container"></div>
 
     <script>
-        // --- Configuración y Estado ---
-        const STORAGE_KEY = 'gestorpro_tasks_v1';
+        // --- Configuración Global ---
+        const STORAGE_KEY = 'gestorpro_tasks_v2';
         let tasks = [];
         let currentEditId = null;
-        let existingFileData = null; // Para mantener el archivo al editar si no se sube uno nuevo
+        let existingFileData = null;
+        
+        // --- Estado de Sesión ---
+        let currentUserRole = null; // 'admin' | 'guest' | null
+
+        const CREDENTIALS = {
+            admin: { user: 'Administrador_1', pass: 'claveadmin1', role: 'admin', name: 'Administrador' },
+            guest: { user: 'Invitado_1', pass: 'claveus1', role: 'guest', name: 'Invitado' }
+        };
 
         // --- Inicialización ---
         document.addEventListener('DOMContentLoaded', () => {
             loadTasks();
-            renderTasks();
-            
-            // Establecer fecha por defecto en modal
-            document.getElementById('inputDate').valueAsDate = new Date();
+            // No renderizamos tareas hasta hacer login
+            checkSession();
         });
 
-        // --- Gestión de Datos (LocalStorage) ---
+        // --- Lógica de Autenticación ---
+        function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+            const errorMsg = document.getElementById('loginError');
+
+            let authenticated = false;
+
+            if (user === CREDENTIALS.admin.user && pass === CREDENTIALS.admin.pass) {
+                setSession(CREDENTIALS.admin.role);
+                authenticated = true;
+            } else if (user === CREDENTIALS.guest.user && pass === CREDENTIALS.guest.pass) {
+                setSession(CREDENTIALS.guest.role);
+                authenticated = true;
+            }
+
+            if (authenticated) {
+                errorMsg.classList.add('hidden');
+                // Limpiar inputs
+                document.getElementById('loginUser').value = '';
+                document.getElementById('loginPass').value = '';
+            } else {
+                errorMsg.classList.remove('hidden');
+                showToast('Usuario o contraseña incorrectos', 'error');
+            }
+        }
+
+        function setSession(role) {
+            currentUserRole = role;
+            // Guardar en sessionStorage para mantener login al refrescar (opcional)
+            // sessionStorage.setItem('userRole', role); 
+            updateUIForRole();
+            renderTasks();
+        }
+
+        function checkSession() {
+            // Si quisieras persistencia al refrescar:
+            // const storedRole = sessionStorage.getItem('userRole');
+            // if(storedRole) setSession(storedRole);
+        }
+
+        function logout() {
+            currentUserRole = null;
+            // sessionStorage.removeItem('userRole');
+            document.getElementById('appView').classList.add('hidden');
+            document.getElementById('loginView').classList.remove('hidden');
+            showToast('Sesión cerrada correctamente', 'info');
+        }
+
+        function updateUIForRole() {
+            const loginView = document.getElementById('loginView');
+            const appView = document.getElementById('appView');
+            const btnNewTask = document.getElementById('btnNewTask');
+            const roleBadge = document.getElementById('roleBadge');
+
+            // Switch views
+            loginView.classList.add('hidden');
+            appView.classList.remove('hidden');
+
+            // UI Config based on Role
+            if (currentUserRole === 'admin') {
+                btnNewTask.classList.remove('hidden');
+                roleBadge.textContent = 'Modo: Administrador';
+                roleBadge.className = 'text-xs font-semibold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full';
+            } else {
+                btnNewTask.classList.add('hidden');
+                roleBadge.textContent = 'Modo: Invitado';
+                roleBadge.className = 'text-xs font-semibold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full';
+            }
+        }
+
+        // --- Gestión de Datos ---
         function loadTasks() {
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored) {
-                try {
-                    tasks = JSON.parse(stored);
-                } catch (e) {
-                    console.error("Error cargando tareas", e);
-                    tasks = [];
-                }
+                try { tasks = JSON.parse(stored); } 
+                catch (e) { tasks = []; }
             }
         }
 
@@ -224,21 +331,19 @@
                 renderTasks();
             } catch (e) {
                 if (e.name === 'QuotaExceededError') {
-                    showToast('Error: Almacenamiento lleno. Intenta con un archivo más pequeño.', 'error');
-                } else {
-                    showToast('Error al guardar los datos.', 'error');
+                    showToast('Error: Almacenamiento lleno. Usa archivos más pequeños.', 'error');
                 }
             }
         }
 
-        // --- Lógica del Archivo ---
+        // --- Manejo de Archivos ---
         function readFile(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = () => resolve({
                     name: file.name,
                     type: file.type,
-                    data: reader.result, // Base64
+                    data: reader.result,
                     size: file.size
                 });
                 reader.onerror = error => reject(error);
@@ -258,10 +363,15 @@
         }
 
         // --- CRUD Operaciones ---
-        
         async function handleFormSubmit(e) {
             e.preventDefault();
             
+            // SECURITY CHECK
+            if (currentUserRole !== 'admin') {
+                showToast('No tienes permisos para realizar esta acción.', 'error');
+                return;
+            }
+
             const title = document.getElementById('inputTitle').value;
             const date = document.getElementById('inputDate').value;
             const description = document.getElementById('inputDescription').value;
@@ -269,13 +379,11 @@
 
             let fileDataObj = null;
 
-            // Manejo de archivo
             if (fileInput.files && fileInput.files[0]) {
-                // Nuevo archivo subido
                 try {
                     const file = fileInput.files[0];
-                    if (file.size > 3 * 1024 * 1024) { // Limite 3MB para no saturar LocalStorage rápido
-                        showToast('El archivo es demasiado grande (>3MB) para este demo.', 'error');
+                    if (file.size > 3 * 1024 * 1024) { 
+                        showToast('El archivo es muy grande (>3MB).', 'error');
                         return;
                     }
                     fileDataObj = await readFile(file);
@@ -284,25 +392,16 @@
                     return;
                 }
             } else if (currentEditId && existingFileData) {
-                // Mantener archivo existente en edición
                 fileDataObj = existingFileData;
             }
 
             if (currentEditId) {
-                // Editar
                 const index = tasks.findIndex(t => t.id === currentEditId);
                 if (index !== -1) {
-                    tasks[index] = {
-                        ...tasks[index],
-                        title,
-                        date,
-                        description,
-                        file: fileDataObj
-                    };
-                    showToast('Tarea actualizada correctamente.', 'success');
+                    tasks[index] = { ...tasks[index], title, date, description, file: fileDataObj };
+                    showToast('Tarea actualizada.', 'success');
                 }
             } else {
-                // Crear
                 const newTask = {
                     id: Date.now().toString(),
                     title,
@@ -311,7 +410,7 @@
                     file: fileDataObj
                 };
                 tasks.push(newTask);
-                showToast('Tarea creada exitosamente.', 'success');
+                showToast('Tarea creada.', 'success');
             }
 
             saveTasks();
@@ -319,7 +418,11 @@
         }
 
         function deleteTask(id) {
-            if(confirm('¿Estás seguro de que deseas eliminar esta tarea?')) {
+            if (currentUserRole !== 'admin') {
+                showToast('Acceso denegado. Solo administradores.', 'error');
+                return;
+            }
+            if(confirm('¿Eliminar esta tarea permanentemente?')) {
                 tasks = tasks.filter(t => t.id !== id);
                 saveTasks();
                 showToast('Tarea eliminada.', 'info');
@@ -327,6 +430,11 @@
         }
 
         function editTask(id) {
+            if (currentUserRole !== 'admin') {
+                showToast('Acceso denegado. Solo administradores.', 'error');
+                return;
+            }
+
             const task = tasks.find(t => t.id === id);
             if (!task) return;
 
@@ -338,9 +446,8 @@
             document.getElementById('inputDate').value = task.date;
             document.getElementById('inputDescription').value = task.description;
             
-            // UI para archivo
             document.getElementById('fileNameDisplay').textContent = "Seleccionar nuevo archivo (opcional)";
-            document.getElementById('inputFile').value = ""; // Reset input
+            document.getElementById('inputFile').value = "";
             
             if (task.file) {
                 const status = document.getElementById('currentFileStatus');
@@ -354,6 +461,7 @@
         }
 
         function downloadFile(id) {
+            // Permitido para ambos roles
             const task = tasks.find(t => t.id === id);
             if (task && task.file) {
                 const link = document.createElement("a");
@@ -367,19 +475,13 @@
             }
         }
 
-        // --- Filtros ---
-        function applyFilter() {
-            const dateStr = document.getElementById('filterDate').value;
-            if (!dateStr) return;
-            renderTasks(dateStr);
-        }
-
-        function clearFilter() {
+        // --- Filtros y Renderizado ---
+        function applyFilter() { renderTasks(document.getElementById('filterDate').value); }
+        function clearFilter() { 
             document.getElementById('filterDate').value = '';
-            renderTasks();
+            renderTasks(); 
         }
 
-        // --- Renderizado UI ---
         function renderTasks(filterDate = null) {
             const grid = document.getElementById('tasksGrid');
             const emptyState = document.getElementById('emptyState');
@@ -387,16 +489,10 @@
             
             grid.innerHTML = '';
             
-            let filteredTasks = tasks;
-            
-            // Ordenar por fecha (más reciente primero)
-            filteredTasks.sort((a, b) => new Date(b.date) - new Date(a.date));
+            let filteredTasks = tasks.sort((a, b) => new Date(b.date) - new Date(a.date));
+            if (filterDate) filteredTasks = filteredTasks.filter(t => t.date === filterDate);
 
-            if (filterDate) {
-                filteredTasks = filteredTasks.filter(t => t.date === filterDate);
-            }
-
-            countLabel.textContent = `${filteredTasks.length} tarea(s) encontrada(s)`;
+            countLabel.textContent = `${filteredTasks.length} tarea(s)`;
 
             if (filteredTasks.length === 0) {
                 grid.classList.add('hidden');
@@ -408,39 +504,49 @@
             }
 
             filteredTasks.forEach(task => {
-                const fileIcon = getFileIcon(task.file ? task.file.name : '');
                 const hasFile = !!task.file;
-
-                const card = document.createElement('div');
-                card.className = "bg-white rounded-xl shadow-sm hover:shadow-md transition duration-200 border border-gray-100 flex flex-col h-full";
                 
-                card.innerHTML = `
-                    <div class="p-5 flex-1">
-                        <div class="flex justify-between items-start mb-3">
-                            <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded border border-indigo-100 uppercase tracking-wide">
-                                ${formatDate(task.date)}
-                            </span>
-                            ${hasFile ? `<i class="fas fa-paperclip text-gray-400" title="Archivo adjunto"></i>` : ''}
-                        </div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-2 leading-tight">${escapeHtml(task.title)}</h3>
-                        <p class="text-gray-600 text-sm line-clamp-3">${escapeHtml(task.description)}</p>
-                    </div>
-                    
-                    <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 rounded-b-xl flex justify-between items-center">
-                        <div class="flex gap-2">
-                             ${hasFile ? `
-                                <button onclick="downloadFile('${task.id}')" class="text-white bg-green-500 hover:bg-green-600 w-8 h-8 rounded-full flex items-center justify-center transition shadow-sm" title="Descargar ${escapeHtml(task.file.name)}">
-                                    <i class="fas fa-download text-xs"></i>
-                                </button>
-                             ` : `<span class="text-xs text-gray-400 italic">Sin archivo</span>`}
-                        </div>
-                        <div class="flex gap-1">
+                // LÓGICA DE VISUALIZACIÓN DE BOTONES SEGÚN ROL
+                let actionButtonsHTML = '';
+                
+                // Botón descargar (Para todos)
+                const downloadBtn = hasFile ? `
+                    <button onclick="downloadFile('${task.id}')" class="text-white bg-green-500 hover:bg-green-600 w-8 h-8 rounded-full flex items-center justify-center transition shadow-sm" title="Descargar archivo">
+                        <i class="fas fa-download text-xs"></i>
+                    </button>
+                ` : `<span class="text-xs text-gray-400 italic">Sin archivo</span>`;
+
+                // Botones Admin (Editar/Borrar)
+                if (currentUserRole === 'admin') {
+                    actionButtonsHTML = `
+                        <div class="flex gap-1 border-l pl-2 ml-2 border-gray-200">
                             <button onclick="editTask('${task.id}')" class="text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 p-2 rounded-lg transition" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button onclick="deleteTask('${task.id}')" class="text-gray-500 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition" title="Eliminar">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
+                        </div>
+                    `;
+                }
+
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-xl shadow-sm hover:shadow-md transition duration-200 border border-gray-100 flex flex-col h-full";
+                card.innerHTML = `
+                    <div class="p-5 flex-1">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-indigo-50 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded border border-indigo-100 uppercase tracking-wide">
+                                ${formatDate(task.date)}
+                            </span>
+                            ${hasFile ? `<i class="fas fa-paperclip text-gray-400"></i>` : ''}
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2 leading-tight">${escapeHtml(task.title)}</h3>
+                        <p class="text-gray-600 text-sm line-clamp-3">${escapeHtml(task.description)}</p>
+                    </div>
+                    <div class="bg-gray-50 px-5 py-3 border-t border-gray-100 rounded-b-xl flex justify-between items-center">
+                        <div class="flex gap-2 items-center w-full justify-between">
+                            ${downloadBtn}
+                            ${actionButtonsHTML}
                         </div>
                     </div>
                 `;
@@ -450,14 +556,14 @@
 
         // --- Utilidades ---
         function openModal() {
+            if (currentUserRole !== 'admin') return; // Seguridad extra
+            
             const body = document.querySelector('body');
             const modal = document.getElementById('taskModal');
             modal.classList.remove('opacity-0', 'pointer-events-none');
             body.classList.add('modal-active');
             
-            // Si abrimos sin ID de edición (nuevo), limpiar
             if (!currentEditId) {
-                // Reset form visual
                 document.getElementById('taskForm').reset();
                 document.getElementById('modalTitle').textContent = "Nueva Tarea";
                 document.getElementById('inputDate').valueAsDate = new Date();
@@ -473,8 +579,6 @@
             const modal = document.getElementById('taskModal');
             modal.classList.add('opacity-0', 'pointer-events-none');
             body.classList.remove('modal-active');
-            
-            // Resetear estado de edición al cerrar
             setTimeout(() => {
                 currentEditId = null;
                 existingFileData = null;
@@ -482,20 +586,9 @@
             }, 300);
         }
 
-        function formatDate(dateString) {
-            const options = { year: 'numeric', month: 'short', day: 'numeric' };
-            // Corrección de zona horaria para visualización
-            const date = new Date(dateString + 'T00:00:00');
-            return date.toLocaleDateString('es-ES', options);
-        }
-
-        function getFileIcon(filename) {
-            const ext = filename.split('.').pop().toLowerCase();
-            if (ext === 'pdf') return 'fa-file-pdf';
-            if (ext === 'docx' || ext === 'doc') return 'fa-file-word';
-            if (ext === 'pptx' || ext === 'ppt') return 'fa-file-powerpoint';
-            if (ext === 'html') return 'fa-file-code';
-            return 'fa-file-alt';
+        function formatDate(str) {
+            const d = new Date(str + 'T00:00:00');
+            return d.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
         }
 
         function escapeHtml(text) {
@@ -504,43 +597,19 @@
             return div.innerHTML;
         }
 
-        function showToast(message, type = 'info') {
+        function showToast(msg, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            
-            const colors = {
-                'success': 'bg-green-600',
-                'error': 'bg-red-600',
-                'info': 'bg-gray-800',
-                'warning': 'bg-yellow-600'
-            };
-            const colorClass = colors[type] || colors['info'];
-
-            toast.className = `toast mb-3 p-4 rounded-lg shadow-lg text-white flex items-center gap-3 ${colorClass} min-w-[300px]`;
-            toast.innerHTML = `
-                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
-                <span class="font-medium text-sm">${message}</span>
-            `;
-
+            const colors = { 'success': 'bg-green-600', 'error': 'bg-red-600', 'info': 'bg-gray-800', 'warning': 'bg-yellow-600' };
+            toast.className = `toast mb-3 p-4 rounded-lg shadow-lg text-white flex items-center gap-3 ${colors[type] || colors['info']} min-w-[300px]`;
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i><span class="font-medium text-sm">${msg}</span>`;
             container.appendChild(toast);
-
-            // Trigger animation
-            requestAnimationFrame(() => {
-                toast.classList.add('show');
-            });
-
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
-        // Cerrar modal con tecla ESC
         document.onkeydown = function(evt) {
-            evt = evt || window.event;
-            if (evt.keyCode == 27) {
-                closeModal();
-            }
+            if ((evt || window.event).keyCode == 27) closeModal();
         };
     </script>
 </body>
